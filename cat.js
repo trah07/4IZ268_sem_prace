@@ -71,19 +71,19 @@ window.onload = function () {
   catDeadImg.src = "./img/cat-dead.png";
 
   cactus1Img = new Image();
-  cactus1Img.src = "./img/cactus1.png";
+  cactus1Img.src = "./img/thread1.png";
 
   cactus2Img = new Image();
-  cactus2Img.src = "./img/cactus2.png";
+  cactus2Img.src = "./img/thread2.png";
 
   cactus3Img = new Image();
-  cactus3Img.src = "./img/cactus3.png";
+  cactus3Img.src = "./img/thread3.png";
 
   trackImg = new Image();
-  trackImg.src = "./img/track.png";
+  trackImg.src = "./img/carpet.png";
 
   cloudImg = new Image();
-  cloudImg.src = "./img/cloud.png";
+  cloudImg.src = "./img/flowers.png";
 
   document.getElementById("game-over-container").style.display = "none";
 
