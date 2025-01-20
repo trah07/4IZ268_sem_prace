@@ -51,6 +51,8 @@ let trackX = 0;
 let cloudImg;
 let clouds = [];
 
+let difficultyFactor = 1;
+
 window.onload = function () {
   board = document.getElementById("board");
   board.height = boardHeight;
@@ -90,8 +92,18 @@ window.onload = function () {
   initializeClouds();
 
   requestAnimationFrame(update);
-  setInterval(placeCactus, 1000); //1000 ms
+  setInterval(() => {
+    placeCactus();
+  }, 1000 / difficultyFactor);
+
   setInterval(placeCloud, 4000);
+
+  // Increase difficulty every 5 seconds
+  setInterval(() => {
+    difficultyFactor += 0.05; // Increase difficulty
+    velocityX = Math.max(velocityX - 0.5, -30); // Increase obstacle speed, limit to -20
+  }, 10000);
+
   document.addEventListener("keydown", moveCat);
   document.addEventListener("keydown", function (e) {
     if (e.code == "Enter" && gameOver) {
@@ -283,6 +295,8 @@ function restartGame() {
   cat.y = catY;
   cactusArray = [];
   initializeClouds();
+  difficultyFactor = 1; // Reset difficulty
+  velocityX = -8; // Reset speed
   document.getElementById("game-over-container").style.display = "none";
   document.getElementById("score-container").style.display = "none";
   catImg.src = "./img/cat.png";
