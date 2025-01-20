@@ -51,7 +51,10 @@ let trackX = 0;
 let cloudImg;
 let clouds = [];
 
+// obtížnost
 let difficultyFactor = 1;
+let cactusInterval = 1000; // Initial interval for cactus placement (ms)
+let cactusIntervalId; // ID to keep track of the cactus interval timer
 
 window.onload = function () {
   board = document.getElementById("board");
@@ -98,9 +101,9 @@ window.onload = function () {
 
   setInterval(placeCloud, 4000);
 
-  // Increase difficulty every 5 seconds
+  // Increase difficulty every 10 seconds
   setInterval(() => {
-    difficultyFactor += 0.05; // Increase difficulty
+    difficultyFactor += 0.1; // Increase difficulty
     velocityX = Math.max(velocityX - 0.5, -30); // Increase obstacle speed, limit to -20
   }, 10000);
 
@@ -111,6 +114,16 @@ window.onload = function () {
     }
   });
 };
+
+function startCactusPlacement() {
+  cactusIntervalId = setInterval(placeCactus, cactusInterval);
+}
+
+function updateCactusInterval() {
+  clearInterval(cactusIntervalId); // Clear the existing interval
+  cactusInterval = Math.max(500 / difficultyFactor, 300); // Decrease interval, limit to 300 ms
+  cactusIntervalId = setInterval(placeCactus, cactusInterval); // Restart interval with new value
+}
 
 function update() {
   requestAnimationFrame(update);
@@ -297,6 +310,9 @@ function restartGame() {
   initializeClouds();
   difficultyFactor = 1; // Reset difficulty
   velocityX = -8; // Reset speed
+  cactusInterval = 1000; // Reset interval
+  clearInterval(cactusIntervalId);
+  startCactusPlacement();
   document.getElementById("game-over-container").style.display = "none";
   document.getElementById("score-container").style.display = "none";
   catImg.src = "./img/cat.png";
