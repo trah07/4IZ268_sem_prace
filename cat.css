@@ -1,9 +1,45 @@
 body {
   font-family: "Courier New", Courier, monospace;
   text-align: center;
+  position: relative;
 }
 
 #board {
   background-color: lightgray;
   border-bottom: 1px solid black;
+  position: relative;
+  margin: 0 auto;
+  display: block;
+}
+
+#game-over-container {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+}
+
+#game-over-image {
+  width: 300px;
+  height: auto;
+}
+
+#reset-button {
+  width: 100px;
+  height: auto;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+#score-container {
+  margin-top: 10px;
+  font-size: 24px;
+  color: black;
+}
+
+#final-score {
+  font-weight: bold;
 }

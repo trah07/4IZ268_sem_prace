@@ -10,5 +10,18 @@
   <body>
     <h1>Kočka a klubíčka Hra</h1>
     <canvas id="board"></canvas>
+    <div id="score-container">
+      <p id="final-score"></p>
+    </div>
+    <div id="game-over-container">
+      <img id="game-over-image" src="./img/game-over.png" alt="Game Over" />
+      <br />
+      <img
+        id="reset-button"
+        src="./img/reset.png"
+        alt="Reset Game"
+        onclick="restartGame()"
+      />
+    </div>
   </body>
 </html>
