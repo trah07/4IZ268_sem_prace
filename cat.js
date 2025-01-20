@@ -188,8 +188,6 @@ function moveCat(e) {
   if ((e.code == "Space" || e.code == "ArrowUp") && cat.y == catY) {
     //jump
     velocityY = -10;
-  } else if (e.code == "ArrowDown" && cat.y == catY) {
-    //duck
   }
 }
 
