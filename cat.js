@@ -10,6 +10,10 @@ let catHeight = 72;
 let catX = 50;
 let catY = boardHeight - catHeight;
 let catImg;
+let catRun1Img;
+let catRun2Img;
+let catDeadImg;
+let catFrame = 0;
 
 let cat = {
   x: catX,
@@ -56,9 +60,15 @@ window.onload = function () {
 
   catImg = new Image();
   catImg.src = "./img/cat.png";
-  catImg.onload = function () {
-    context.drawImage(catImg, cat.x, cat.y, cat.width, cat.height);
-  };
+
+  catRun1Img = new Image();
+  catRun1Img.src = "./img/cat-run1.png";
+
+  catRun2Img = new Image();
+  catRun2Img.src = "./img/cat-run2.png";
+
+  catDeadImg = new Image();
+  catDeadImg.src = "./img/cat-dead.png";
 
   cactus1Img = new Image();
   cactus1Img.src = "./img/cactus1.png";
@@ -83,12 +93,19 @@ window.onload = function () {
   setInterval(placeCactus, 1000); //1000 ms
   setInterval(placeCloud, 4000);
   document.addEventListener("keydown", moveCat);
+  document.addEventListener("keydown", function (e) {
+    if (e.code == "Enter" && gameOver) {
+      restartGame();
+    }
+  });
 };
 
 function update() {
   requestAnimationFrame(update);
+
   if (gameOver) {
     document.getElementById("game-over-container").style.display = "block";
+    context.drawImage(catDeadImg, cat.x, cat.y, cat.width, cat.height); // Ensure only the dead cat image is drawn
     displayFinalScore();
     return;
   }
@@ -118,10 +135,24 @@ function update() {
     30
   );
 
-  //cat
+  //kočka
   velocityY += gravity;
-  cat.y = Math.min(cat.y + velocityY, catY); //gravitace pro cat.y
-  context.drawImage(catImg, cat.x, cat.y, cat.width, cat.height);
+  cat.y = Math.min(cat.y + velocityY, catY); // Gravity for the cat
+
+  if (gameOver) {
+    context.drawImage(catDeadImg, cat.x, cat.y, cat.width, cat.height);
+  } else if (cat.y < catY) {
+    // Jumping
+    context.drawImage(catImg, cat.x, cat.y, cat.width, cat.height);
+  } else {
+    // Running animation
+    if (catFrame % 20 < 10) {
+      context.drawImage(catRun1Img, cat.x, cat.y, cat.width, cat.height);
+    } else {
+      context.drawImage(catRun2Img, cat.x, cat.y, cat.width, cat.height);
+    }
+    catFrame++;
+  }
 
   //cactus
   for (let i = 0; i < cactusArray.length; i++) {
@@ -137,18 +168,16 @@ function update() {
 
     if (detectCollision(cat, cactus)) {
       gameOver = true;
-      catImg.src = "./img/cat-dead.png";
-      catImg.onload = function () {
-        context.drawImage(catImg, cat.x, cat.y, cat.width, cat.height);
-      };
     }
   }
 
-  //score
-  context.fillStyle = "black";
-  context.font = "20px courier";
-  score++;
-  context.fillText(score, 5, 20);
+  // score
+  if (!gameOver) {
+    context.fillStyle = "black";
+    context.font = "20px courier";
+    score++;
+    context.fillText(score, 5, 20);
+  }
 }
 
 function moveCat(e) {
@@ -254,9 +283,9 @@ function restartGame() {
   score = 0;
   velocityY = 0;
   cat.y = catY;
-  catImg.src = "./img/cat.png";
   cactusArray = [];
   initializeClouds();
   document.getElementById("game-over-container").style.display = "none";
-  scoreContainer.style.display = "none";
+  document.getElementById("score-container").style.display = "none";
+  catImg.src = "./img/cat.png";
 }
