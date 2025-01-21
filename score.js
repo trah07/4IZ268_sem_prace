@@ -21,7 +21,6 @@ app.post("/saveBestScore", (req, res) => {
 });
 
 app.get("/getBestScore", (req, res) => {
-  res.set("Cache-Control", "no-store");
   if (!bestScore) {
     res.json({ message: "No best score yet!" });
   } else {

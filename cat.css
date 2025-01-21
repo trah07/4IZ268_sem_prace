@@ -4,7 +4,7 @@ body {
   position: relative;
   margin: 0;
   padding: 0;
-  background-color: #f4f4f4; /* Optional background */
+  background-color: #f4f4f4;
 }
 
 #board {
@@ -23,6 +23,8 @@ body {
   transform: translate(-50%, -50%);
   text-align: center;
   z-index: 10;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 #game-over-image {
@@ -45,6 +47,7 @@ body {
 
 #final-score {
   font-weight: bold;
+  font-size: 24px;
 }
 
 #best-scores-container {
@@ -66,7 +69,6 @@ body {
   color: green;
 }
 
-/* Styling for the name prompt modal */
 #name-prompt-modal {
   position: fixed;
   top: 50%;
@@ -80,8 +82,9 @@ body {
   border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  display: none; /* Hidden by default */
+  display: none;
   text-align: center;
+  font-size: 18px;
 }
 
 #name-prompt-modal div {

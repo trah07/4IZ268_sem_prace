@@ -63,9 +63,6 @@ let difficultyIncreaseIntervalId;
 let bestScore = 0;
 
 window.onload = function () {
-  bestScore = 0; // Reset local best score
-  retrieveBestScore(); // Fetch the best score from the server
-
   board = document.getElementById("board");
   board.height = boardHeight;
   board.width = boardWidth;
@@ -390,10 +387,12 @@ function saveBestScore(name, score) {
       if (xhr.status === 200) {
         const response = JSON.parse(xhr.responseText);
         console.log("Best score saved:", response);
-        bestScore = score; // Update local best score
-        document.getElementById(
-          "best-score"
-        ).textContent = `${response.bestScore.name}: ${response.bestScore.score}`;
+        if (response.bestScore) {
+          bestScore = response.bestScore.score; // Update local best score
+          document.getElementById(
+            "best-score"
+          ).textContent = `${response.bestScore.name}: ${response.bestScore.score}`;
+        }
         document.getElementById("name-prompt-modal").style.display = "none"; // Hide modal
       } else {
         console.error("Error saving best score:", xhr.statusText);
@@ -416,11 +415,10 @@ function retrieveBestScore() {
         const response = JSON.parse(xhr.responseText);
         const bestScoreDiv = document.getElementById("best-score");
 
-        if (response.message === "No best score yet!") {
-          // No best score exists
+        if (response.message) {
+          // Handle case with no best score
           bestScoreDiv.textContent = response.message;
-          bestScore = 0; // Reset local best score
-        } else {
+        } else if (response.name && response.score !== undefined) {
           // Update the UI with the best score
           console.log("Best score retrieved:", response);
           bestScore = response.score; // Update local best score
