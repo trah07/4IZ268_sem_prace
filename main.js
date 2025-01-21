@@ -149,6 +149,7 @@ function update() {
   if (gameOver) {
     document.getElementById("game-over-container").style.display = "block";
     context.drawImage(catDeadImg, cat.x, cat.y, cat.width, cat.height);
+    displayFinalScore();
     return;
   }
   context.clearRect(0, 0, board.width, board.height);
