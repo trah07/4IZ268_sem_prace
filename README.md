@@ -2,8 +2,4 @@
 
 Javascriptová aplikace - Kočka a klubíčka
 
-# Backend start
-
-node score.js
-Získání nejlepšího skóre:
-curl -X GET http://localhost:3000/getBestScore
+Odkaz na hru: https://eso.vse.cz/~trah07/kocka_klubicka/
