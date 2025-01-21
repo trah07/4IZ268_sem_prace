@@ -22,7 +22,7 @@ function submitPlayerName() {
     playerNameInput.value = ""; // vymazání vstupního pole po odeslání
     document.getElementById("name-prompt-modal").style.display = "none"; // schování modálu
   } else {
-    alert("Please enter a valid name.");
+    alert("Zadejte prosím platné jméno.");
   }
 }
 
@@ -36,7 +36,7 @@ document
   });
 
 function restartGame() {
-  console.log("Restarting game...");
+  console.log("Restartuju hru...");
   console.log("difficultyFactor:", difficultyFactor, "velocityX:", velocityX);
 
   gameOver = false;
@@ -65,32 +65,32 @@ function restartGame() {
   catImg.src = "./img/cat.png";
 }
 
-function saveBestScore(name, score) {
-  const xhr = new XMLHttpRequest();
-  xhr.open("POST", `${SERVER_URL}/saveBestScore`, true);
-  xhr.setRequestHeader("Content-Type", "application/json");
+async function saveBestScore(name, score) {
+  try {
+    const response = await fetch(`${SERVER_URL}/saveBestScore`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, score }),
+    });
 
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      if (xhr.status === 200) {
-        const response = JSON.parse(xhr.responseText);
-        console.log("Best score saved:", response);
-        if (response.bestScore) {
-          bestScore = response.bestScore.score;
-          document.getElementById(
-            "best-score"
-          ).textContent = `${response.bestScore.name}: ${response.bestScore.score}`;
-        }
-        document.getElementById("name-prompt-modal").style.display = "none";
-      } else {
-        console.error("Error saving best score:", xhr.statusText);
-        alert("Failed to save the best score. Please try again.");
-      }
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
 
-  const data = JSON.stringify({ name, score });
-  xhr.send(data);
+    const data = await response.json();
+    console.log("Nejlepší dosažené skóre:", data);
+    if (data.bestScore) {
+      bestScore = data.bestScore.score;
+      document.getElementById(
+        "best-score"
+      ).textContent = `${data.bestScore.name}: ${data.bestScore.score}`;
+    }
+
+    document.getElementById("name-prompt-modal").style.display = "none";
+  } catch (error) {
+    console.error("Chyba při ukládání nejlepšího skóre:", error.message);
+    alert("Nepodařilo se uložit nejlepší skóre. Zkuste to prosím znovu.");
+  }
 }
 
 function resetBestScore() {
@@ -101,31 +101,11 @@ function resetBestScore() {
     if (xhr.readyState === 4) {
       if (xhr.status === 200) {
         console.log(
-          "Best score reset successfully:",
+          "Úspěšný reset nejlepšího skóre:",
           JSON.parse(xhr.responseText)
         );
       } else {
-        console.error("Error resetting best score:", xhr.statusText);
-      }
-    }
-  };
-
-  xhr.send();
-}
-
-function resetBestScore() {
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", `${SERVER_URL}/resetBestScore`, true);
-
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      if (xhr.status === 200) {
-        console.log(
-          "Best score reset successfully:",
-          JSON.parse(xhr.responseText)
-        );
-      } else {
-        console.error("Error resetting best score:", xhr.statusText);
+        console.error("Chyba při resetování nejlepšího skóre:", xhr.statusText);
       }
     }
   };
@@ -146,13 +126,13 @@ function retrieveBestScore() {
         if (response.message) {
           bestScoreDiv.textContent = response.message; // "Zatím žádné nejlepší skóre"
         } else if (response.name && response.score !== undefined) {
-          console.log("Best score retrieved:", response);
+          console.log("Nejlepší získané skóre:", response);
           bestScore = response.score;
           bestScoreDiv.textContent = `${response.name}: ${response.score}`;
         }
       } else {
         console.error("Error retrieving best score:", xhr.statusText);
-        alert("Failed to retrieve the best score. Please try again.");
+        alert("Nepodařilo se získat nejlepší skóre. Zkuste to prosím znovu.");
       }
     }
   };
