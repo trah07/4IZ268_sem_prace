@@ -148,8 +148,7 @@ function update() {
 
   if (gameOver) {
     document.getElementById("game-over-container").style.display = "block";
-    context.drawImage(catDeadImg, cat.x, cat.y, cat.width, cat.height); // Ensure only the dead cat image is drawn
-    displayFinalScore();
+    context.drawImage(catDeadImg, cat.x, cat.y, cat.width, cat.height);
     return;
   }
   context.clearRect(0, 0, board.width, board.height);
