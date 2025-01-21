@@ -22,7 +22,7 @@ let cat = {
   height: catHeight,
 };
 
-//cactus
+// cactus
 let cactusArray = [];
 
 let cactus1Width = 34;
@@ -55,6 +55,8 @@ let clouds = [];
 let difficultyFactor = 1;
 let cactusInterval = 1000; // Initial interval for cactus placement (ms)
 let cactusIntervalId; // ID to keep track of the cactus interval timer
+
+let bestScore = 0;
 
 window.onload = function () {
   board = document.getElementById("board");
@@ -109,10 +111,12 @@ window.onload = function () {
 
   document.addEventListener("keydown", moveCat);
   document.addEventListener("keydown", function (e) {
-    if (e.code == "Enter" && gameOver) {
+    if (e.code == "KeyR" && gameOver) {
       restartGame();
     }
   });
+
+  retrieveBestScore(); // Load the best score when the game starts
 };
 
 function startCactusPlacement() {
@@ -299,6 +303,20 @@ function displayFinalScore() {
   const finalScore = document.getElementById("final-score");
   finalScore.textContent = `Finalní skóre: ${score}`;
   scoreContainer.style.display = "block";
+
+  if (score > bestScore) {
+    const namePromptModal = document.getElementById("name-prompt-modal");
+    namePromptModal.style.display = "block"; // Show modal
+  }
+}
+
+function submitPlayerName() {
+  const playerName = document.getElementById("player-name-input").value.trim();
+  if (playerName !== "") {
+    saveBestScore(playerName, score); // Save the best score using AJAX
+  } else {
+    alert("Please enter a valid name.");
+  }
 }
 
 function restartGame() {
@@ -316,4 +334,60 @@ function restartGame() {
   document.getElementById("game-over-container").style.display = "none";
   document.getElementById("score-container").style.display = "none";
   catImg.src = "./img/cat.png";
+}
+
+function saveBestScore(name, score) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "http://localhost:3000/saveBestScore", true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        console.log("Best score saved:", response);
+        bestScore = score; // Update local best score
+        document.getElementById(
+          "best-score"
+        ).textContent = `Best Score: ${response.bestScore.score} by ${response.bestScore.name}`;
+        document.getElementById("name-prompt-modal").style.display = "none"; // Hide modal
+      } else {
+        console.error("Error saving best score:", xhr.statusText);
+        alert("Failed to save the best score. Please try again.");
+      }
+    }
+  };
+
+  // Send the JSON data
+  const data = JSON.stringify({ name, score });
+  xhr.send(data);
+}
+
+function retrieveBestScore() {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", "http://localhost:3000/getBestScore", true);
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        const bestScoreDiv = document.getElementById("best-score");
+
+        if (response.message === "No best score yet!") {
+          // Display "No best score yet!" if no score exists
+          bestScoreDiv.textContent = response.message;
+        } else {
+          // Update the UI with the best score
+          console.log("Best score retrieved:", response);
+          bestScore = response.score; // Update local best score
+          bestScoreDiv.textContent = `${response.name}: ${response.score}`;
+        }
+      } else {
+        console.error("Error retrieving best score:", xhr.statusText);
+        alert("Failed to retrieve the best score. Please try again.");
+      }
+    }
+  };
+
+  xhr.send(); // No data to send for GET requests
 }

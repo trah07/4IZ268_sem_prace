@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kočka a klubíčka Hra</title>
     <link rel="stylesheet" href="cat.css" />
-    <script src="cat.js"></script>
+    <link rel="icon" href="./img/cat.png" />
+    <script src="cat.js" defer></script>
   </head>
   <body>
     <h1>Kočka a klubíčka Hra</h1>
@@ -22,6 +23,18 @@
         alt="Reset Game"
         onclick="restartGame()"
       />
+    </div>
+    <!-- Best Scores Section -->
+    <div id="best-scores-container">
+      <h2>Best Scores</h2>
+      <div id="best-score">No best score yet!</div>
+    </div>
+    <div id="name-prompt-modal" style="display: none">
+      <div>
+        <p>Congratulations! You achieved a new best score! Enter your name:</p>
+        <input type="text" id="player-name-input" placeholder="Your Name" />
+        <button onclick="submitPlayerName()">Submit</button>
+      </div>
     </div>
   </body>
 </html>
