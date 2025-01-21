@@ -1,3 +1,6 @@
+//server
+const SERVER_URL = "https://eso.vse.cz/~trah07/kocka_klubicka";
+
 // board
 let board;
 let boardWidth = 750;
@@ -129,7 +132,9 @@ function startCactusPlacement() {
 
 function updateCactusInterval() {
   clearInterval(cactusIntervalId); // Clear the existing interval
-  cactusInterval = Math.max(500 / difficultyFactor, 300); // Decrease interval, minimum of 300ms
+
+  // Adjust the interval calculation to slow down cactus placement
+  cactusInterval = Math.max(1000 / (difficultyFactor * 0.8), 500); // Minimum interval is now 500ms
   cactusIntervalId = setInterval(placeCactus, cactusInterval); // Restart with the new interval
 }
 
@@ -330,6 +335,9 @@ function submitPlayerName() {
 }
 
 function restartGame() {
+  console.log("Restarting game...");
+  console.log("difficultyFactor:", difficultyFactor, "velocityX:", velocityX);
+
   gameOver = false;
   score = 0;
   velocityY = 0;
@@ -359,7 +367,7 @@ function restartGame() {
 
 function saveBestScore(name, score) {
   const xhr = new XMLHttpRequest();
-  xhr.open("POST", "http://localhost:3000/saveBestScore", true);
+  xhr.open("POST", `${SERVER_URL}/saveBestScore`, true);
   xhr.setRequestHeader("Content-Type", "application/json");
 
   xhr.onreadystatechange = function () {
@@ -379,7 +387,6 @@ function saveBestScore(name, score) {
     }
   };
 
-  // Send the JSON data
   const data = JSON.stringify({ name, score });
   xhr.send(data);
 }
