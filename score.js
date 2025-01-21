@@ -20,10 +20,9 @@ app.post("/saveBestScore", (req, res) => {
   res.json({ message: "Best score saved successfully!", bestScore });
 });
 
-// Retrieve best score
 app.get("/getBestScore", (req, res) => {
+  res.set("Cache-Control", "no-store");
   if (!bestScore) {
-    // Respond with a message if no best score exists
     res.json({ message: "No best score yet!" });
   } else {
     res.json(bestScore);

@@ -1,6 +1,5 @@
 //server
-const SERVER_URL = "https://eso.vse.cz/~trah07/kocka_klubicka";
-
+const SERVER_URL = "https://eso.vse.cz/~trah07/kocka_klubicka"; // lokálně http://localhost:3000
 // board
 let board;
 let boardWidth = 750;
@@ -64,6 +63,9 @@ let difficultyIncreaseIntervalId;
 let bestScore = 0;
 
 window.onload = function () {
+  bestScore = 0; // Reset local best score
+  retrieveBestScore(); // Fetch the best score from the server
+
   board = document.getElementById("board");
   board.height = boardHeight;
   board.width = boardWidth;
@@ -326,13 +328,26 @@ function displayFinalScore() {
 }
 
 function submitPlayerName() {
-  const playerName = document.getElementById("player-name-input").value.trim();
+  const playerNameInput = document.getElementById("player-name-input");
+  const playerName = playerNameInput.value.trim();
+
   if (playerName !== "") {
     saveBestScore(playerName, score); // Save the best score using AJAX
+    playerNameInput.value = ""; // Clear the input field after submission
+    document.getElementById("name-prompt-modal").style.display = "none"; // Hide modal
   } else {
     alert("Please enter a valid name.");
   }
 }
+
+// Add event listener for "Enter" key in the input field
+document
+  .getElementById("player-name-input")
+  .addEventListener("keypress", function (event) {
+    if (event.key === "Enter") {
+      submitPlayerName(); // Trigger the submit functionality
+    }
+  });
 
 function restartGame() {
   console.log("Restarting game...");
@@ -393,7 +408,7 @@ function saveBestScore(name, score) {
 
 function retrieveBestScore() {
   const xhr = new XMLHttpRequest();
-  xhr.open("GET", "http://localhost:3000/getBestScore", true);
+  xhr.open("GET", `${SERVER_URL}/getBestScore`, true);
 
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4) {
@@ -402,8 +417,9 @@ function retrieveBestScore() {
         const bestScoreDiv = document.getElementById("best-score");
 
         if (response.message === "No best score yet!") {
-          // Display "No best score yet!" if no score exists
+          // No best score exists
           bestScoreDiv.textContent = response.message;
+          bestScore = 0; // Reset local best score
         } else {
           // Update the UI with the best score
           console.log("Best score retrieved:", response);
