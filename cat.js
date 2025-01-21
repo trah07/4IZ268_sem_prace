@@ -14,6 +14,7 @@ let catRun1Img;
 let catRun2Img;
 let catDeadImg;
 let catFrame = 0;
+let isDucking = false;
 
 let cat = {
   x: catX,
@@ -54,7 +55,8 @@ let clouds = [];
 // obtížnost
 let difficultyFactor = 1;
 let cactusInterval = 1000; // Initial interval for cactus placement (ms)
-let cactusIntervalId; // ID to keep track of the cactus interval timer
+let cactusIntervalId;
+let difficultyIncreaseIntervalId;
 
 let bestScore = 0;
 
@@ -97,22 +99,24 @@ window.onload = function () {
   initializeClouds();
 
   requestAnimationFrame(update);
-  setInterval(() => {
-    placeCactus();
-  }, 1000 / difficultyFactor);
-
+  startCactusPlacement(); // Start cactus placement interval dynamically
   setInterval(placeCloud, 4000);
 
-  // Increase difficulty every 10 seconds
-  setInterval(() => {
+  difficultyIncreaseIntervalId = setInterval(() => {
     difficultyFactor += 0.1; // Increase difficulty
-    velocityX = Math.max(velocityX - 0.5, -30); // Increase obstacle speed, limit to -20
+    velocityX = Math.max(velocityX - 0.5, -30); // Increase obstacle speed, limit to -30
+    updateCactusInterval(); // Adjust cactus interval dynamically
   }, 10000);
 
   document.addEventListener("keydown", moveCat);
   document.addEventListener("keydown", function (e) {
-    if (e.code == "KeyR" && gameOver) {
+    if (e.code === "KeyR" && gameOver) {
       restartGame();
+    }
+  });
+  document.addEventListener("keyup", function (e) {
+    if (e.code === "ArrowDown") {
+      isDucking = false; // Reset ducking flag
     }
   });
 
@@ -125,8 +129,8 @@ function startCactusPlacement() {
 
 function updateCactusInterval() {
   clearInterval(cactusIntervalId); // Clear the existing interval
-  cactusInterval = Math.max(500 / difficultyFactor, 300); // Decrease interval, limit to 300 ms
-  cactusIntervalId = setInterval(placeCactus, cactusInterval); // Restart interval with new value
+  cactusInterval = Math.max(500 / difficultyFactor, 300); // Decrease interval, minimum of 300ms
+  cactusIntervalId = setInterval(placeCactus, cactusInterval); // Restart with the new interval
 }
 
 function update() {
@@ -165,13 +169,15 @@ function update() {
   );
 
   //kočka
-  velocityY += gravity;
-  cat.y = Math.min(cat.y + velocityY, catY); // Gravity for the cat
+  if (!isDucking) {
+    velocityY += gravity; // Normal gravity
+  }
+  cat.y = Math.min(cat.y + velocityY, catY); // Apply gravity and limit to ground level
 
   if (gameOver) {
     context.drawImage(catDeadImg, cat.x, cat.y, cat.width, cat.height);
   } else if (cat.y < catY) {
-    // Jumping
+    // Jumping or falling
     context.drawImage(catImg, cat.x, cat.y, cat.width, cat.height);
   } else {
     // Running animation
@@ -214,9 +220,13 @@ function moveCat(e) {
     return;
   }
 
-  if ((e.code == "Space" || e.code == "ArrowUp") && cat.y == catY) {
-    //jump
-    velocityY = -10;
+  if ((e.code === "Space" || e.code === "ArrowUp") && cat.y === catY) {
+    // Jump
+    velocityY = -12;
+  } else if (e.code === "ArrowDown" && cat.y < catY) {
+    // Accelerate downward
+    isDucking = true; // Set ducking flag
+    velocityY += 12; // Increase downward velocity
   }
 }
 
@@ -328,9 +338,20 @@ function restartGame() {
   initializeClouds();
   difficultyFactor = 1; // Reset difficulty
   velocityX = -8; // Reset speed
-  cactusInterval = 1000; // Reset interval
+  cactusInterval = 1000; // Reset cactus interval
+
+  // Clear and restart cactus placement interval
   clearInterval(cactusIntervalId);
   startCactusPlacement();
+
+  // Clear and restart difficulty increase interval
+  clearInterval(difficultyIncreaseIntervalId);
+  difficultyIncreaseIntervalId = setInterval(() => {
+    difficultyFactor += 0.1;
+    velocityX = Math.max(velocityX - 0.5, -30);
+    updateCactusInterval(); // Dynamically update cactus interval
+  }, 10000);
+
   document.getElementById("game-over-container").style.display = "none";
   document.getElementById("score-container").style.display = "none";
   catImg.src = "./img/cat.png";
@@ -349,7 +370,7 @@ function saveBestScore(name, score) {
         bestScore = score; // Update local best score
         document.getElementById(
           "best-score"
-        ).textContent = `Best Score: ${response.bestScore.score} by ${response.bestScore.name}`;
+        ).textContent = `${response.bestScore.name}: ${response.bestScore.score}`;
         document.getElementById("name-prompt-modal").style.display = "none"; // Hide modal
       } else {
         console.error("Error saving best score:", xhr.statusText);
