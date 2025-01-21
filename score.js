@@ -1,42 +1,161 @@
-const express = require("express");
-const cors = require("cors");
-const app = express();
+//server
+const SERVER_URL = "http://localhost:3000"; // lokálně http://localhost:3000
 
-app.use(cors());
-app.use(express.json());
+function displayFinalScore() {
+  const scoreContainer = document.getElementById("score-container");
+  const finalScore = document.getElementById("final-score");
+  finalScore.textContent = `Finalní skóre: ${score}`;
+  scoreContainer.style.display = "block";
 
-// Use a flag or null to indicate no best score
-let bestScore = null; // No best score yet
-
-// Save best score
-app.post("/saveBestScore", (req, res) => {
-  const { name, score } = req.body;
-
-  // Update the best score only if it's higher or there is no best score
-  if (!bestScore || score > bestScore.score) {
-    bestScore = { name, score };
+  if (score > bestScore) {
+    const namePromptModal = document.getElementById("name-prompt-modal");
+    namePromptModal.style.display = "block"; // modál
   }
+}
 
-  res.json({ message: "Best score saved successfully!", bestScore });
-});
+function submitPlayerName() {
+  const playerNameInput = document.getElementById("player-name-input");
+  const playerName = playerNameInput.value.trim();
 
-// Get best score
-app.get("/getBestScore", (req, res) => {
-  if (!bestScore) {
-    res.json({ message: "No best score yet!" });
+  if (playerName !== "") {
+    saveBestScore(playerName, score); // uložení nejlepšího skóre pomocí AJAXu
+    playerNameInput.value = ""; // vymazání vstupního pole po odeslání
+    document.getElementById("name-prompt-modal").style.display = "none"; // schování modálu
   } else {
-    res.json(bestScore);
+    alert("Please enter a valid name.");
   }
-});
+}
 
-// Reset best score
-app.get("/resetBestScore", (req, res) => {
-  bestScore = null; // Reset the best score to null
-  res.json({ message: "Best score has been reset." });
-});
+// tlačítko Enter
+document
+  .getElementById("player-name-input")
+  .addEventListener("keypress", function (event) {
+    if (event.key === "Enter") {
+      submitPlayerName();
+    }
+  });
 
-// Start the server
-const PORT = 3000;
-app.listen(PORT, () =>
-  console.log(`Server running on http://localhost:${PORT}`)
-);
+function restartGame() {
+  console.log("Restarting game...");
+  console.log("difficultyFactor:", difficultyFactor, "velocityX:", velocityX);
+
+  gameOver = false;
+  score = 0;
+  velocityY = 0;
+  cat.y = catY;
+  threadsArray = [];
+  initializeFlowers();
+  difficultyFactor = 1; // resetuje obtížnost
+  velocityX = -8; // reset rychlosti
+  threadsInterval = 1000; // reset interval klubíček
+  // vymazat a restartovat interval umísťování klubíček
+  clearInterval(threadsIntervalId);
+  startThreadsPlacement();
+
+  // vymazat a znovu spustit interval zvyšování obtížnosti
+  clearInterval(difficultyIncreaseIntervalId);
+  difficultyIncreaseIntervalId = setInterval(() => {
+    difficultyFactor += 0.1;
+    velocityX = Math.max(velocityX - 0.5, -30);
+    updateThreadsInterval(); // dynamicky aktualizovat interval klubíček
+  }, 10000);
+
+  document.getElementById("game-over-container").style.display = "none";
+  document.getElementById("score-container").style.display = "none";
+  catImg.src = "./img/cat.png";
+}
+
+function saveBestScore(name, score) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", `${SERVER_URL}/saveBestScore`, true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        console.log("Best score saved:", response);
+        if (response.bestScore) {
+          bestScore = response.bestScore.score;
+          document.getElementById(
+            "best-score"
+          ).textContent = `${response.bestScore.name}: ${response.bestScore.score}`;
+        }
+        document.getElementById("name-prompt-modal").style.display = "none";
+      } else {
+        console.error("Error saving best score:", xhr.statusText);
+        alert("Failed to save the best score. Please try again.");
+      }
+    }
+  };
+
+  const data = JSON.stringify({ name, score });
+  xhr.send(data);
+}
+
+function resetBestScore() {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", `${SERVER_URL}/resetBestScore`, true);
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        console.log(
+          "Best score reset successfully:",
+          JSON.parse(xhr.responseText)
+        );
+      } else {
+        console.error("Error resetting best score:", xhr.statusText);
+      }
+    }
+  };
+
+  xhr.send();
+}
+
+function resetBestScore() {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", `${SERVER_URL}/resetBestScore`, true);
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        console.log(
+          "Best score reset successfully:",
+          JSON.parse(xhr.responseText)
+        );
+      } else {
+        console.error("Error resetting best score:", xhr.statusText);
+      }
+    }
+  };
+
+  xhr.send();
+}
+
+function retrieveBestScore() {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", `${SERVER_URL}/getBestScore`, true);
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        const bestScoreDiv = document.getElementById("best-score");
+
+        if (response.message) {
+          bestScoreDiv.textContent = response.message; // "Zatím žádné nejlepší skóre"
+        } else if (response.name && response.score !== undefined) {
+          console.log("Best score retrieved:", response);
+          bestScore = response.score;
+          bestScoreDiv.textContent = `${response.name}: ${response.score}`;
+        }
+      } else {
+        console.error("Error retrieving best score:", xhr.statusText);
+        alert("Failed to retrieve the best score. Please try again.");
+      }
+    }
+  };
+
+  xhr.send();
+}
