@@ -20,6 +20,7 @@ app.post("/saveBestScore", (req, res) => {
   res.json({ message: "Best score saved successfully!", bestScore });
 });
 
+// Get best score
 app.get("/getBestScore", (req, res) => {
   if (!bestScore) {
     res.json({ message: "No best score yet!" });
@@ -28,5 +29,14 @@ app.get("/getBestScore", (req, res) => {
   }
 });
 
+// Reset best score
+app.get("/resetBestScore", (req, res) => {
+  bestScore = null; // Reset the best score to null
+  res.json({ message: "Best score has been reset." });
+});
+
 // Start the server
-app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+const PORT = 3000;
+app.listen(PORT, () =>
+  console.log(`Server running on http://localhost:${PORT}`)
+);

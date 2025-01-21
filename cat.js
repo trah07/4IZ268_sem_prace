@@ -1,5 +1,5 @@
 //server
-const SERVER_URL = "https://eso.vse.cz/~trah07/kocka_klubicka"; // lokálně http://localhost:3000
+const SERVER_URL = "http://localhost:3000"; // lokálně http://localhost:3000
 // board
 let board;
 let boardWidth = 750;
@@ -63,6 +63,10 @@ let difficultyIncreaseIntervalId;
 let bestScore = 0;
 
 window.onload = function () {
+  // Reset the backend best score before starting
+  resetBestScore();
+
+  // Initialize the game board and assets
   board = document.getElementById("board");
   board.height = boardHeight;
   board.width = boardWidth;
@@ -111,18 +115,14 @@ window.onload = function () {
   }, 10000);
 
   document.addEventListener("keydown", moveCat);
-  document.addEventListener("keydown", function (e) {
-    if (e.code === "KeyR" && gameOver) {
-      restartGame();
-    }
-  });
   document.addEventListener("keyup", function (e) {
     if (e.code === "ArrowDown") {
       isDucking = false; // Reset ducking flag
     }
   });
 
-  retrieveBestScore(); // Load the best score when the game starts
+  // Fetch the best score after resetting it
+  retrieveBestScore();
 };
 
 function startCactusPlacement() {
@@ -405,6 +405,46 @@ function saveBestScore(name, score) {
   xhr.send(data);
 }
 
+function resetBestScore() {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", `${SERVER_URL}/resetBestScore`, true);
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        console.log(
+          "Best score reset successfully:",
+          JSON.parse(xhr.responseText)
+        );
+      } else {
+        console.error("Error resetting best score:", xhr.statusText);
+      }
+    }
+  };
+
+  xhr.send(); // Send the request to reset the best score
+}
+
+function resetBestScore() {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", `${SERVER_URL}/resetBestScore`, true);
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        console.log(
+          "Best score reset successfully:",
+          JSON.parse(xhr.responseText)
+        );
+      } else {
+        console.error("Error resetting best score:", xhr.statusText);
+      }
+    }
+  };
+
+  xhr.send();
+}
+
 function retrieveBestScore() {
   const xhr = new XMLHttpRequest();
   xhr.open("GET", `${SERVER_URL}/getBestScore`, true);
@@ -416,12 +456,10 @@ function retrieveBestScore() {
         const bestScoreDiv = document.getElementById("best-score");
 
         if (response.message) {
-          // Handle case with no best score
-          bestScoreDiv.textContent = response.message;
+          bestScoreDiv.textContent = response.message; // "No best score yet!"
         } else if (response.name && response.score !== undefined) {
-          // Update the UI with the best score
           console.log("Best score retrieved:", response);
-          bestScore = response.score; // Update local best score
+          bestScore = response.score;
           bestScoreDiv.textContent = `${response.name}: ${response.score}`;
         }
       } else {
@@ -431,5 +469,5 @@ function retrieveBestScore() {
     }
   };
 
-  xhr.send(); // No data to send for GET requests
+  xhr.send();
 }
