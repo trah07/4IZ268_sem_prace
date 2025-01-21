@@ -1,3 +1,4 @@
+/* Globální styl */
 body {
   font-family: "Courier New", Courier, monospace;
   text-align: center;
@@ -15,6 +16,7 @@ body {
   display: block;
 }
 
+/* Game Over Container */
 #game-over-container {
   display: none;
   position: fixed;
@@ -33,16 +35,25 @@ body {
   height: auto;
 }
 
-#reset-button {
-  width: 60px;
+/* Restart Button */
+#restart-button {
+  width: 80px;
   height: auto;
   cursor: pointer;
   margin-top: 20px;
   display: block;
   margin-left: auto;
   margin-right: auto;
+  border: none;
+  background: none;
 }
 
+#restart-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Score Container */
 #score-container {
   margin-top: 10px;
   font-size: 24px;
@@ -54,6 +65,7 @@ body {
   font-size: 24px;
 }
 
+/* Nejlepší skóre*/
 #best-scores-container {
   margin-top: 20px;
   font-size: 20px;
@@ -73,6 +85,7 @@ body {
   color: green;
 }
 
+/* Name Prompt Modal */
 #name-prompt-modal {
   position: fixed;
   top: 50%;
@@ -111,6 +124,10 @@ body {
   outline: none;
 }
 
+#name-prompt-modal input:focus {
+  border-color: #888;
+}
+
 #name-prompt-modal button {
   background-color: rgb(85, 85, 85);
   color: white;
@@ -123,28 +140,4 @@ body {
 
 #name-prompt-modal button:hover {
   background-color: gray;
-}
-
-#leaderboard-container {
-  margin-top: 20px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-  width: 300px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-#leaderboard-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  font-size: 16px;
-}
-
-#leaderboard-list li {
-  margin: 5px 0;
-  font-size: 14px;
-  color: #333;
 }

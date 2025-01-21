@@ -1,29 +1,52 @@
 function displayFinalScore() {
   const scoreContainer = document.getElementById("score-container");
   const finalScore = document.getElementById("final-score");
-  finalScore.textContent = `Finalní skóre: ${score}`;
+  finalScore.textContent = `Finální skóre: ${score}`;
   scoreContainer.style.display = "block";
 
   if (score > bestScore) {
-    const namePromptModal = document.getElementById("name-prompt-modal");
-    namePromptModal.style.display = "block"; // modál
+    displayNamePromptModal();
   }
+}
+
+function displayNamePromptModal() {
+  const namePromptModal = document.getElementById("name-prompt-modal");
+  const restartButton = document.getElementById("restart-button");
+
+  // Zobrazí modální okno
+  namePromptModal.style.display = "block";
+
+  // Deaktivuje tlačítko restart
+  restartButton.disabled = true;
 }
 
 function submitPlayerName() {
   const playerNameInput = document.getElementById("player-name-input");
   const playerName = playerNameInput.value.trim();
 
+  // Validace vstupu
+  if (playerName.length < 2 || /[^a-zA-Z0-9 ]/.test(playerName)) {
+    alert("Zadejte prosím platné jméno (min. 2 znaky, bez speciálních znaků).");
+    return; // Ukončí funkci, pokud je jméno neplatné
+  }
+
   if (playerName !== "") {
-    saveBestScore(playerName, score); // uloží nejlepší skóre do úložiště localStorage
-    playerNameInput.value = ""; // vymazání vstupního pole po odeslání
-    document.getElementById("name-prompt-modal").style.display = "none"; // schová modal
+    saveBestScore(playerName, score); // Uloží nejlepší skóre do localStorage
+    playerNameInput.value = ""; // Vymaže vstupní pole
+
+    // Skryje modální okno
+    const namePromptModal = document.getElementById("name-prompt-modal");
+    namePromptModal.style.display = "none";
+
+    // Aktivuje tlačítko restart
+    const restartButton = document.getElementById("restart-button");
+    restartButton.disabled = false;
   } else {
     alert("Zadejte prosím platné jméno.");
   }
 }
 
-// Enter po zadání jména
+// Posluchač pro klávesu Enter
 document
   .getElementById("player-name-input")
   .addEventListener("keypress", function (event) {

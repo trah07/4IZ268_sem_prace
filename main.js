@@ -61,8 +61,12 @@ let difficultyIncreaseIntervalId;
 let bestScore = 0;
 
 window.onload = function () {
-  // obnovení nejlepšího skóre backendu před spuštěním
+  // Resetování nejlepšího skóre
   resetBestScore();
+
+  // Zablokování tlačítka restart při startu
+  const restartButton = document.getElementById("restart-button");
+  restartButton.disabled = true;
 
   // inicializace herního plánu a prostředků
   board = document.getElementById("board");
