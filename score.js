@@ -25,7 +25,7 @@ function submitPlayerName() {
   const playerName = playerNameInput.value.trim();
 
   // Validace vstupu
-  if (playerName.length < 2 || /[^a-zA-Z0-9 ]/.test(playerName)) {
+  if (playerName.length < 2 || /[^\p{L}\p{N} ]/u.test(playerName)) {
     alert("Zadejte prosím platné jméno (min. 2 znaky, bez speciálních znaků).");
     return; // Ukončí funkci, pokud je jméno neplatné
   }
