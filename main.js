@@ -123,6 +123,10 @@ window.onload = function () {
   retrieveBestScore();
 };
 
+window.onbeforeunload = function () {
+  return "Obnovením stránky se vymaže skóre. Chcete pokračovat?";
+};
+
 function startThreadsPlacement() {
   threadsIntervalId = setInterval(placeThreads, threadsInterval);
 }
